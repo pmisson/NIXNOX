@@ -1,0 +1,9 @@
+# %ECSV 0.9
+# ---
+# datatype:
+# - {name: author, datatype: string}
+# - {name: institution, datatype: string}
+# delimiter: ','
+# schema: astropy-2.0
+author, institution
+Claudia Alamo, CASLEO
