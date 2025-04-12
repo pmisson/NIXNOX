@@ -5,6 +5,16 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from scipy.interpolate import griddata
 import io
+import os
+from datetime import datetime
+
+# Inicializa almacenamiento local como "base de datos" CSV
+db_file = "submissions.csv"
+if not os.path.exists(db_file):
+    pd.DataFrame(columns=[
+        "timestamp", "nombre", "apellidos", "institucion", "lat", "lon",
+        "alojamientos", "archivo_nombre"
+    ]).to_csv(db_file, index=False)
 
 st.set_page_config(page_title="Mapa de Brillo del Cielo", layout="centered")
 
@@ -15,13 +25,30 @@ st.sidebar.header("Datos del usuario")
 nombre = st.sidebar.text_input("Nombre")
 apellidos = st.sidebar.text_input("Apellidos")
 institucion = st.sidebar.text_input("Institución")
+latitud = st.sidebar.text_input("Latitud del sitio (opcional)")
+longitud = st.sidebar.text_input("Longitud del sitio (opcional)")
+alojamientos = st.sidebar.text_area("Alojamientos cercanos (opcional)")
 archivo = st.sidebar.file_uploader("Sube tu archivo .ecsv", type=["ecsv", "csv"])
 
 if archivo:
-    # === LEER EL ARCHIVO ===
     try:
         df = pd.read_csv(archivo, comment='#')
         st.success("Archivo cargado correctamente.")
+
+        # === GUARDAR DATOS EN LA BASE DE DATOS LOCAL ===
+        nueva_fila = pd.DataFrame([{
+            "timestamp": datetime.utcnow().isoformat(),
+            "nombre": nombre,
+            "apellidos": apellidos,
+            "institucion": institucion,
+            "lat": latitud,
+            "lon": longitud,
+            "alojamientos": alojamientos,
+            "archivo_nombre": archivo.name
+        }])
+        db = pd.read_csv(db_file)
+        db = pd.concat([db, nueva_fila], ignore_index=True)
+        db.to_csv(db_file, index=False)
 
         # === PROCESAMIENTO DE DATOS ===
         r_points = 90 - df['Alt']
@@ -66,7 +93,12 @@ if archivo:
         st.subheader("Datos del usuario")
         st.markdown(f"**Nombre:** {nombre} {apellidos}")
         st.markdown(f"**Institución:** {institucion}")
+        if latitud and longitud:
+            st.markdown(f"**Ubicación:** Lat {latitud}, Lon {longitud}")
+        if alojamientos:
+            st.markdown(f"**Alojamientos cercanos:** {alojamientos}")
 
     except Exception as e:
         st.error(f"Error procesando el archivo: {e}")
+
 
