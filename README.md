@@ -13,7 +13,7 @@ Esta aplicación web permite generar mapas de brillo del cielo a partir de archi
 
 Jaime Zamorano
 
-Rafael
+Rafael González 
 
 Alejandro Sánchez de Miguel, 2025
 
